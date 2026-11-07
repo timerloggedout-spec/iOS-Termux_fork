@@ -14,6 +14,26 @@ The honest thesis, in one breath:
 
 ---
 
+## ⚙️ Updated Workflows
+
+Two GitHub Actions workflows live in `.github/workflows/` (plural) on [credkellar/iOS-Termux](https://github.com/credkellar/iOS-Termux) — pasted by Darion, byte-identical to the delivered pack (`ci.yml` blob `bf9a1b9a`, `docker-publish.yml` blob `729dd787`, live commits `5a3a9478` + `8a58865b`):
+
+### 1️⃣ CI — `ci.yml` ✅
+
+- **Triggers:** every push and pull request to `main`
+- **Runner:** `ubuntu-latest` with Python 3.12
+- **Steps:** checkout → setup-python → `pip install pytest` → `python -m pytest tests/ -q` → `python main.py` (the 48-point self-check must print `VERDICT: PROCEED`)
+
+### 2️⃣ Docker Publish — `docker-publish.yml` 🐳
+
+- **Triggers:** push to `main`, or manually from the phone via **Actions → Docker Publish → Run workflow**
+- **Steps:** checkout → Buildx → Docker Hub login (per-repo secrets `DOCKERHUB_USERNAME` / `DOCKERHUB_TOKEN`) → build & push
+- **Publishes:** `credkellar/ios2termux:latest` 🎉
+
+> 📝 Secrets are per-repo on GitHub — they never carry over from another repo. Both workflow badges below are the **live** badge.svg images (checked HTTP 200) — what they display is the real run status.
+
+---
+
 ## 🏷️ Tech Stack Badges
 
 ![Python](https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white)
@@ -27,8 +47,63 @@ The honest thesis, in one breath:
 ![Translations](https://img.shields.io/badge/translations-16%20pairs-orange)
 ![HOLD Gates](https://img.shields.io/badge/HOLD%20gates-8%20armed-red)
 ![License](https://img.shields.io/badge/license-MIT-green)
+![CI](https://img.shields.io/github/actions/workflow/status/credkellar/iOS-Termux/ci.yml?branch=main&label=CI)
+![Docker Publish](https://img.shields.io/github/actions/workflow/status/credkellar/iOS-Termux/docker-publish.yml?branch=main&label=Docker%20Publish)
 
 **Stack in one line:** 🐍 Python 3.12 · 0 dependencies · 🧠 Gemini Carbon 4 Extended Thinking (decider) · 📱 iOS shells (iSH / a-Shell / Blink) · 🐧 real Termux on Android · 🔐 SSH on port 8022 · 🗂️ shared storage `~/storage/downloads`
+
+
+### 💻 Core Programming Languages & Core Systems
+
+![Python](https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white)
+![Shell](https://img.shields.io/badge/Shell-bash%20%2F%20POSIX-4EAA25?logo=gnubash&logoColor=white)
+![Dependencies](https://img.shields.io/badge/stdlib%20only-0%20dependencies-blue)
+
+- 🐍 **Python 3.12, pure stdlib** — ONE interface: `main.py`; package `ios2termux/` (routes, translate, brains, carbon4, planner, blackbox, freeai)
+- 🧠 **Gemini Carbon 4 Extended Thinking** — the decider (MAP → MODEL → STRESS → DECIDE, 32768 extended budget, offline-authoritative)
+
+### ⛓️ Web3 & Infrastructure
+
+- 🚫 **Web3: none — honestly.** No blockchain, no chain calls in this project. The infrastructure here is terminal infrastructure:
+- 🔐 **OpenSSH** — `sshd` inside real Termux, iPhone connects as the client
+- 📂 **Termux `$PREFIX` + shared storage** — `~/storage/downloads` is the file bridge between the phones
+
+### ⚙️ Platform Support & Hardware Architecture
+
+![iOS](https://img.shields.io/badge/iOS-cockpit-000000?logo=apple&logoColor=white)
+![Android](https://img.shields.io/badge/Android-Termux%20host-3DDC84?logo=android&logoColor=white)
+![Termux](https://img.shields.io/badge/Termux-Android%20only-black?logo=termux&logoColor=white)
+
+- 📱 **iPhone (iOS)** — the cockpit: iSH (Alpine, `apk`), a-Shell, Blink Shell / Termius as SSH clients
+- 🤖 **Android device** — the engine room: real Termux runs `sshd`, `pkg`, and every Termux-only tool
+- 💻 **Any Python machine** — planner/translator runs locally, including inside its own Docker image
+
+### ⚡ Low-Level Infrastructure & Performance
+
+![OpenSSH](https://img.shields.io/badge/OpenSSH-port%208022-F80000?logo=openssh&logoColor=white)
+
+- 🔌 **SSH on port 8022** — Termux's standard `sshd` port; LAN first, Tailscale across networks
+- ✂️ **Zero dependencies, zero build step** — the whole tool is stdlib text processing; plans and translations are instant
+- 🛡️ **Hostile-input screen** — shell metacharacters are rejected before they can reach a command
+
+### 🛠️ DevOps & Build Tools
+
+![GitHub Actions](https://img.shields.io/badge/GitHub-Actions-2088FF?logo=githubactions&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-Hub-2496ED?logo=docker&logoColor=white)
+![pytest](https://img.shields.io/badge/pytest-43%20tests-0A9EDC?logo=pytest&logoColor=white)
+
+- ✅ **CI** (`ci.yml`) — pytest + the 48-point self-check on every push / PR
+- 🐳 **Docker Publish** (`docker-publish.yml`) — builds and pushes `credkellar/ios2termux:latest`
+- 🧪 **Verification** — 43 tests, CHECKS 48/48, hash-chained blackbox log
+
+### ☁️ Cloud Providers
+
+![Codespaces](https://img.shields.io/badge/GitHub-Codespaces-181717?logo=github&logoColor=white)
+![Tailscale](https://img.shields.io/badge/Tailscale-SSH%20mesh-242424?logo=tailscale&logoColor=white)
+
+- ☁️ **GitHub Codespaces** — the cloud-Termux route when no Android device is handy (browser terminal, `pkg`-style wrapper)
+- 🌐 **Tailscale** — the cross-network SSH route between the iPhone and the Android Termux host
+- 🐳 **Docker Hub** — `credkellar/ios2termux`, published by the workflow above
 
 ---
 
@@ -47,7 +122,7 @@ The honest answer has four parts:
 
 ---
 
-## 🎯 What this does
+## 🎯 What this does?
 
 - 🗂️ **Classifies 8 routes** — impossible / shell-only / ssh-client / real-Termux / cloud / transfer-only — with an honest verdict for each
 - 🔀 **Translates 16 command pairs both ways** — Termux <-> iOS (iSH): `pkg install` <-> `apk add`, clipboard, TTS, open, and more
@@ -63,7 +138,7 @@ The honest answer has four parts:
 
 ---
 
-## 🔧 How this works
+## 🔧 How this works?
 
 ### The truth table 📋
 
@@ -145,7 +220,7 @@ Because it tells the truth and then makes the truth useful. Most "Termux on iPho
 
 ---
 
-## 🧩 Problems + 10 solutions (paired)
+## 🧩 What problems this solves? — 10 solutions (paired)
 
 1. ❓ **Problem:** "Can I run Termux on my iPhone?" gets forum folklore instead of a straight answer.
    ✅ **Solution:** a truth table in code — `honest_verdict()` returns the facts; tests lock them in.
