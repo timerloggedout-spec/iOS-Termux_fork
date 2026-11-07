@@ -1,4 +1,4 @@
-"""Translate route — Termux commands/paths <-> iOS shell (iSH) equivalents.
+"""Translate route  Termux commands/paths <-> iOS shell (iSH) equivalents.
 
 iSH is Alpine: `apk`, not `pkg`. Many Termux tools (termux-*) have NO iOS
 equivalent at all; those translate to None with the note preserved in the
@@ -27,16 +27,36 @@ TRANSLATIONS: list[Translation] = [
                 "refresh the package index"),
     Translation("apt update", "apk update",
                 "Termux also ships apt; on iSH the index refresh is apk update"),
+    Translation("apt upgrade", "apk upgrade",
+                "upgrade installed packages"),
+    Translation("pkg upgrade", "apk upgrade",
+                "Termux pkg upgrade -> Alpine apk upgrade"),
     Translation("pkg uninstall {pkg}", "apk del {pkg}",
                 "remove a package"),
+    Translation("pkg remove {pkg}", "apk del {pkg}",
+                "Termux pkg remove -> Alpine apk del"),
+    Translation("pkg search {pkg}", "apk search {pkg}",
+                "search for a package in the repository"),
+    Translation("apt search {pkg}", "apk search {pkg}",
+                "apt search -> apk search"),
+    Translation("pkg list-installed", "apk info -v",
+                "list installed packages"),
+    Translation("dpkg -l", "apk info -v",
+                "list installed packages (dpkg -> apk)"),
     Translation("termux-open {file}", "open {file}",
                 "open a file with the default app"),
+    Translation("xdg-open {file}", "open {file}",
+                "xdg-open -> open on iOS"),
     Translation("termux-clipboard-set", "pbcopy",
                 "copy stdin to the clipboard"),
     Translation("termux-clipboard-get", "pbpaste",
                 "print the clipboard contents"),
+    Translation("termux-clipboard-set {text}", "echo {text} | pbcopy",
+                "copy text to clipboard with echo"),
     Translation("termux-tts-speak {text}", "say {text}",
                 "text to speech"),
+    Translation("termux-tts-stop", "killall say 2>/dev/null; echo 'TTS stopped'",
+                "stop text to speech"),
     Translation("termux-setup-storage", "",
                 "NO iOS equivalent: storage permission is a Termux/Android "
                 "concept; iOS grants file access per app in Files"),
@@ -45,7 +65,11 @@ TRANSLATIONS: list[Translation] = [
                 "or by keeping the shell app in front"),
     Translation("sshd", "ssh",
                 "Termux can HOST sshd (port 8022); iOS shells are ssh "
-                "CLIENTS only — there is no sshd server on iOS"),
+                "CLIENTS only \u2014 there is no sshd server on iOS"),
+    Translation("ssh {host}", "ssh {host}",
+                "SSH client command (works on both, but Termux can also host)"),
+    Translation("scp {file} {host}:{path}", "scp {file} {host}:{path}",
+                "SCP file transfer (client-side works on both)"),
     Translation("termux-info", "uname -a",
                 "system info (closest equivalent, not identical output)"),
     Translation("termux-battery-status", "",
@@ -56,6 +80,18 @@ TRANSLATIONS: list[Translation] = [
                 "share-sheet maps closest to opening the file"),
     Translation("termux-wake-unlock", "",
                 "NO iOS equivalent (pairs with termux-wake-lock)"),
+    Translation("termux-vibrate", "",
+                "NO iOS shell equivalent: vibration APIs are Android-only"),
+    Translation("termux-notification", "echo 'Notification: {text}'",
+                "closest equivalent: print notification (no system notification on iOS)"),
+    Translation("termux-camera-photo", "",
+                "NO iOS shell equivalent: camera APIs are Android-only"),
+    Translation("termux-sensor", "",
+                "NO iOS shell equivalent: Android sensors not available on iOS"),
+    Translation("termux-download {url}", "curl -LO {url}",
+                "download a file (termux-download -> curl)"),
+    Translation("termux-download --timeout {sec} {url}", "curl --max-time {sec} -LO {url}",
+                "download with timeout"),
 ]
 
 
@@ -73,7 +109,7 @@ PATH_TRANSLATIONS: list[PathTranslation] = [
         "in Termux. Requires termux-setup-storage + the Allow tap."),
     PathTranslation(
         "~/downloads", "",
-        "WARNING: ~/downloads is Termux's PRIVATE folder — files there are "
+        "WARNING: ~/downloads is Termux's PRIVATE folder \u2014 files there are "
         "NOT the shared phone Download folder and iOS Files cannot see "
         "them. Shared files belong in ~/storage/downloads."),
     PathTranslation(
@@ -87,6 +123,18 @@ PATH_TRANSLATIONS: list[PathTranslation] = [
     PathTranslation(
         "~/storage/shared", "On My iPhone",
         "the root of shared storage maps to the iOS Files locations root"),
+    PathTranslation(
+        "~/storage/external-1", "On My iPhone",
+        "external storage typically maps to iOS Files root"),
+    PathTranslation(
+        "/sdcard", "On My iPhone",
+        "Android sdcard path -> iOS Files root"),
+    PathTranslation(
+        "/storage/emulated/0", "On My iPhone",
+        "Android emulated storage -> iOS Files root"),
+    PathTranslation(
+        "/storage/emulated/0/Download", "On My iPhone/Downloads",
+        "Android Download folder -> iOS Downloads"),
 ]
 
 PRIVATE_DOWNLOADS_WARNING = (
